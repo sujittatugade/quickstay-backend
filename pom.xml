@@ -60,6 +60,13 @@
   <artifactId>spring-boot-starter-mail</artifactId>
 </dependency>
 
+<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-square-okhttp -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-square-okhttp</artifactId>
+    <version>0.4.1</version>
+</dependency>
+
 	</dependencies>
 
 	<build>
