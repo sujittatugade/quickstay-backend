@@ -23,7 +23,7 @@ public class SecurityConfig {
 	                .requestMatchers(
 	                    "/addAdmin",
 	                    "/loginAdmin",
-	                    "/update-password","/room/**"
+	                    "/update-password","/rooms/**","/bookings/**","/addUser"
 	                ).permitAll()
 	                .anyRequest().authenticated()
 	            );
