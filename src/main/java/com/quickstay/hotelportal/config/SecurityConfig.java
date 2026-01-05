@@ -23,10 +23,7 @@ public class SecurityConfig {
 	                .requestMatchers(
 	                    "/addAdmin",
 	                    "/loginAdmin",
-	                    "/update-password","/rooms/**","/bookings/**","/addUser"
-	                ).permitAll()
-	                .anyRequest().authenticated()
-	            );
+	                    "/update-password","/rooms/**","/bookings/**","/addUser"));
 
 	        return http.build();
 	    }
