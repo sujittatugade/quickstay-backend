@@ -28,7 +28,7 @@ public class SecurityConfig {
                     "/update-password",
                     "/addUser",
                     "/rooms/**",
-                    "/bookings/**"
+                    "/bookings/**","/roomImage/**","/enquiry/**"
                 ).permitAll()    
                 .anyRequest().authenticated()
             );
