@@ -23,6 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // PUBLIC APIs
                 .requestMatchers(
+                		"/",
                     "/addAdmin",
                     "/loginAdmin",
                     "/update-password",

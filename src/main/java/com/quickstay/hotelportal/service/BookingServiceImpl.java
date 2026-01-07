@@ -20,13 +20,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Autowired
     private UserRepository userRepo;
-    
-    @Autowired
-    private EmailService emailService;
-    
+
     @Autowired
     private RoomRepository roomRepo;
 
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public Booking createBooking(
@@ -37,86 +36,82 @@ public class BookingServiceImpl implements BookingService {
             Date checkOut,
             String status
     ) {
-
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setRoomId(roomId);
-        booking.setNoOfPeople(noOfPeople);  
+        booking.setNoOfPeople(noOfPeople);
         booking.setCheckIn(checkIn);
         booking.setCheckOut(checkOut);
         booking.setStatus("UNPAID");
 
+        Booking savedBooking = bookingRepo.save(booking);
+
+        // Send booking confirmation email
         emailService.sendBookingConfirmation(
-                booking.getUser().getEmail(),
-                booking.getUser().getFullName()
+                user.getEmail(),
+                user.getFullName()
         );
 
+        return savedBooking;
+    }
+
+    @Override
+    public Booking updateBookingStatus(Long bookingId, String status) {
+
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if ("PAID".equalsIgnoreCase(booking.getStatus())) {
+            return booking;
+        }
+
+        booking.setStatus(status);
+        Booking savedBooking = bookingRepo.save(booking);
+
+        if ("PAID".equalsIgnoreCase(status)) {
+            Room room = roomRepo.findById(booking.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+
+            emailService.sendPaymentConfirmation(
+                    booking.getUser().getEmail(),
+                    booking.getUser().getFullName(),
+                    "QuickStay Hotel",
+                    room.getRoomType(),
+                    room.getPricePerNight()
+            );
+        }
+
+        return savedBooking;
+    }
+
+    @Override
+    public List<Booking> getBookingsById(Long roomId) {
+        return bookingRepo.findByRoomId(roomId);
+    }
+
+    @Override
+    public List<Booking> getBookingsByUserId(Long userId) {
+        return bookingRepo.findByUser_Id(userId);
+    }
+
+    @Override
+    public List<Booking> getAllBookings() {
+        return bookingRepo.findAll();
+    }
+
+    @Override
+    public Booking cancelBooking(Long id) {
+        Booking booking = bookingRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking Not Found"));
+        booking.setStatus("CANCELED");
         return bookingRepo.save(booking);
     }
 
-	@Override
-	public List<Booking> getBookingsById(Long roomId) {
-		
-		return bookingRepo.findByRoomId(roomId);
-	}
-	
-	@Override
-	public List<Booking> getBookingsByUserId(Long userId) {
-	    return bookingRepo.findByUser_Id(userId);
-	}
-
-	@Override
-	public List<Booking> getAllBookings() {
-		
-		return bookingRepo.findAll();
-	}
-
-	  @Override
-	    public Booking updateBookingStatus(Long bookingId, String status) {
-
-	        Booking booking = bookingRepo.findById(bookingId)
-	                .orElseThrow(() -> new RuntimeException("Booking not found"));
-
-	        
-	        if ("PAID".equalsIgnoreCase(booking.getStatus())) {
-	            return booking;
-	        }
-
-	        booking.setStatus(status);
-	        Booking savedBooking = bookingRepo.save(booking);
-
-	        if ("PAID".equalsIgnoreCase(status)) {
-	        	Room room=roomRepo.findById(booking.getRoomId()).orElseThrow(() -> new RuntimeException("Room not found"));
-	            emailService.sendPaymentConfirmation(
-	                    booking.getUser().getEmail(),
-	                    booking.getUser().getFullName(),
-	                    "QuickStay Hotel",
-	                    room.getRoomType(),
-	                    room.getPricePerNight()
-	                   
-	            );
-	        }
-
-	        return savedBooking;
-	    }
-
-	  @Override
-	  public Booking cancelBooking(Long id) {
-		 
-		  Booking booking=bookingRepo.findById(id).orElseThrow(()-> new RuntimeException("Booking Not Found"));
-		  
-			 booking.setStatus("CANCELED");
-			 return bookingRepo.save(booking);
-		
-	  }
-
-	  @Override
-	  public void deleteBooking(Long id) {
-		bookingRepo.deleteById(id);
-		
-	  }
-
+    @Override
+    public void deleteBooking(Long id) {
+        bookingRepo.deleteById(id);
+    }
 }

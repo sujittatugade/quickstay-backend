@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Value("${RESEND_API_KEY}")
+    @Value("${resend.api.key}")
     private String resendApiKey;
 
-    @Value("${MAIL_FROM:noreply@quickstay.com}")
+    @Value("${mail.from}")
     private String fromEmail;
 
 
@@ -82,7 +82,6 @@ public class EmailService {
             client.newCall(request).execute();
 
         } catch (Exception e) {
-            // IMPORTANT: Do not crash app if email fails
             System.err.println("Email failed: " + e.getMessage());
         }
     }
